@@ -1,31 +1,9 @@
+// src/pages/Home.jsx
 import { useEffect, useState } from 'react';
 import SearchBar from '../components/SearchBar';
 import TrackList from '../components/TrackList';
 import MusicPlayer from '../components/MusicPlayer';
-
-const mockTracks = [
-  {
-    id: 1,
-    title: 'Lofi Study 1',
-    artist: 'Chillhop',
-    albumCover: 'https://via.placeholder.com/150/9CA3AF/000000?text=Lofi+1',
-    preview: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'
-  },
-  {
-    id: 2,
-    title: 'Late Night Vibes',
-    artist: 'Lofi Girl',
-    albumCover: 'https://via.placeholder.com/150/94A3B8/000000?text=Lofi+2',
-    preview: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3'
-  },
-  {
-    id: 3,
-    title: 'Soft Beats',
-    artist: 'Lofigang',
-    albumCover: 'https://via.placeholder.com/150/C7D2FE/000000?text=Lofi+3',
-    preview: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3'
-  }
-];
+import { mockTracks } from '../data/mockTracks';
 
 export default function Home() {
   const [query, setQuery] = useState('');
@@ -33,6 +11,7 @@ export default function Home() {
   const [currentTrack, setCurrentTrack] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
+  // local filter for search (mock mode)
   const filtered = tracks.filter(t =>
     t.title.toLowerCase().includes(query.toLowerCase()) ||
     t.artist.toLowerCase().includes(query.toLowerCase())
@@ -45,7 +24,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-950 to-black text-white flex flex-col">
       <div className="container mx-auto p-4 flex-1 backdrop-blur-lg bg-white/5 rounded-xl shadow-lg border border-white/10">
-        <h1 className="text-4xl font-extrabold text-purple-300 drop-shadow-lg mb-6 text-center">🎧 Night Lofi Player</h1>
+        <h1 className="text-4xl font-extrabold text-purple-300 drop-shadow-lg mb-6 text-center">🎧 Lofi Player</h1>
 
         <SearchBar query={query} setQuery={setQuery} />
 
