@@ -33,27 +33,25 @@ export default function Home() {
   const [currentTrack, setCurrentTrack] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
-  // optional: filter UI only (no API yet)
   const filtered = tracks.filter(t =>
     t.title.toLowerCase().includes(query.toLowerCase()) ||
     t.artist.toLowerCase().includes(query.toLowerCase())
   );
 
-  // auto-select first track on load
   useEffect(() => {
     if (!currentTrack && tracks.length) setCurrentTrack(tracks[0]);
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white flex flex-col">
-      <div className="container mx-auto p-4 flex-1">
-        <h1 className="text-3xl font-bold text-emerald-300 mb-4">🎧 Lofi Music Player</h1>
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-950 to-black text-white flex flex-col">
+      <div className="container mx-auto p-4 flex-1 backdrop-blur-lg bg-white/5 rounded-xl shadow-lg border border-white/10">
+        <h1 className="text-4xl font-extrabold text-purple-300 drop-shadow-lg mb-6 text-center">🎧 Night Lofi Player</h1>
 
         <SearchBar query={query} setQuery={setQuery} />
 
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="md:col-span-2">
-            <h2 className="text-xl text-slate-200 mb-3">Playlist</h2>
+            <h2 className="text-xl text-purple-200 mb-3 font-semibold">Playlist</h2>
             <TrackList
               tracks={filtered}
               onPlay={(track) => {
@@ -65,17 +63,16 @@ export default function Home() {
           </div>
 
           <div className="md:col-span-1">
-            <h2 className="text-xl text-slate-200 mb-3">Now Playing</h2>
-            <div className="bg-slate-800 p-4 rounded-lg">
+            <h2 className="text-xl text-purple-200 mb-3 font-semibold">Now Playing</h2>
+            <div className="bg-white/10 backdrop-blur-md p-5 rounded-xl shadow-md border border-purple-500/20">
               {currentTrack ? (
                 <>
-                  <img src={currentTrack.albumCover} alt="" className="w-full rounded-md mb-3 object-cover" />
-                  <h3 className="text-lg font-semibold text-emerald-300">{currentTrack.title}</h3>
-                  <p className="text-sm text-slate-400 mb-3">{currentTrack.artist}</p>
-                  <p className="text-xs text-slate-500">Preview clips are 30s / sample audio for demo</p>
+                  <img src={currentTrack.albumCover} alt="" className="w-full rounded-lg mb-4 object-cover shadow-lg shadow-purple-500/20" />
+                  <h3 className="text-xl font-bold text-purple-300">{currentTrack.title}</h3>
+                  <p className="text-sm text-purple-100">{currentTrack.artist}</p>
                 </>
               ) : (
-                <p className="text-slate-400">Select a track to start listening</p>
+                <p className="text-purple-300 opacity-70">Select a track to start listening</p>
               )}
             </div>
           </div>

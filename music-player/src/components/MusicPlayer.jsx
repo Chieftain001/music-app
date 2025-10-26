@@ -3,7 +3,7 @@ import { FaPlay, FaPause, FaForward, FaBackward, FaVolumeUp } from 'react-icons/
 
 export default function MusicPlayer({ tracks, currentTrack, setCurrentTrack, isPlaying, setIsPlaying }) {
   const audioRef = useRef(null);
-  const [progress, setProgress] = useState(0); // 0-100
+  const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(0.9);
 
@@ -12,40 +12,41 @@ export default function MusicPlayer({ tracks, currentTrack, setCurrentTrack, isP
     audioRef.current.volume = volume;
   }, [volume]);
 
-  // load and autoplay when currentTrack changes
   useEffect(() => {
     if (!audioRef.current) return;
     if (currentTrack && currentTrack.preview) {
       audioRef.current.src = currentTrack.preview;
       audioRef.current.load();
       if (isPlaying) {
-        audioRef.current.play().catch(() => {});
+        audioRef.current.play();
       }
-    } else {
-      audioRef.current.src = '';
-      setProgress(0);
     }
   }, [currentTrack]);
 
-  // play/pause effect
   useEffect(() => {
-    if (!audioRef.current) return;
-    if (isPlaying) {
-      audioRef.current.play().catch(() => {});
-    } else {
-      audioRef.current.pause();
+    if (audioRef.current) {
+      isPlaying ? audioRef.current.play() : audioRef.current.pause();
     }
   }, [isPlaying]);
 
-  function onTimeUpdate() {
-    const current = audioRef.current.currentTime;
-    const dur = audioRef.current.duration || 0;
-    setDuration(dur);
-    setProgress(dur ? (current / dur) * 100 : 0);
+  function handleTogglePlay() {
+    setIsPlaying(!isPlaying);
   }
 
-  function onEnded() {
-    handleNext();
+  function handleNext() {
+    if (!currentTrack) return;
+    const idx = tracks.findIndex(t => t.id === currentTrack.id);
+    const nextTrack = tracks[(idx + 1) % tracks.length];
+    setCurrentTrack(nextTrack);
+    setIsPlaying(true);
+  }
+
+  function handlePrev() {
+    if (!currentTrack) return;
+    const idx = tracks.findIndex(t => t.id === currentTrack.id);
+    const prevTrack = tracks[(idx - 1 + tracks.length) % tracks.length];
+    setCurrentTrack(prevTrack);
+    setIsPlaying(true);
   }
 
   function formatTime(sec) {
@@ -55,86 +56,59 @@ export default function MusicPlayer({ tracks, currentTrack, setCurrentTrack, isP
     return `${m}:${s}`;
   }
 
-  function handleTogglePlay() {
-    setIsPlaying(!isPlaying);
-  }
-
-  function handlePrev() {
-    if (!currentTrack) return;
-    const idx = tracks.findIndex(t => t.id === currentTrack.id);
-    const prev = tracks[(idx - 1 + tracks.length) % tracks.length];
-    setCurrentTrack(prev);
-    setIsPlaying(true);
-  }
-
-  function handleNext() {
-    if (!currentTrack) return;
-    const idx = tracks.findIndex(t => t.id === currentTrack.id);
-    const next = tracks[(idx + 1) % tracks.length];
-    setCurrentTrack(next);
-    setIsPlaying(true);
-  }
-
-  function handleSeek(e) {
-    if (!audioRef.current || !duration) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
-    const pct = clickX / rect.width;
-    audioRef.current.currentTime = pct * duration;
-    setProgress(pct * 100);
+  function onTimeUpdate() {
+    const current = audioRef.current.currentTime;
+    const dur = audioRef.current.duration || 0;
+    setDuration(dur);
+    setProgress(dur ? (current / dur) * 100 : 0);
   }
 
   return (
-    <div className="w-full bg-slate-800 border-t border-slate-700 p-4">
-      <audio
-        ref={audioRef}
-        onTimeUpdate={onTimeUpdate}
-        onEnded={onEnded}
-      />
-      <div className="container mx-auto flex flex-col md:flex-row items-center gap-4">
+    <div className="w-full bg-black/40 backdrop-blur-xl border-t border-purple-500/20 p-4 shadow-2xl shadow-purple-800/40">
+      <audio ref={audioRef} onTimeUpdate={onTimeUpdate} />
+      <div className="container mx-auto flex flex-col md:flex-row items-center gap-6">
         <div className="flex items-center gap-4 flex-1">
           {currentTrack ? (
             <>
-              <img src={currentTrack.albumCover} alt="" className="w-16 h-16 rounded-md object-cover" />
+              <img src={currentTrack.albumCover} alt="" className="w-16 h-16 rounded-md shadow-lg shadow-purple-500/40" />
               <div>
-                <div className="text-emerald-300 font-semibold">{currentTrack.title}</div>
-                <div className="text-slate-400 text-sm">{currentTrack.artist}</div>
+                <div className="text-purple-200 font-semibold">{currentTrack.title}</div>
+                <div className="text-purple-400 text-sm">{currentTrack.artist}</div>
               </div>
             </>
           ) : (
-            <div className="text-slate-400">No track selected</div>
+            <span className="text-purple-400 opacity-50">No track selected</span>
           )}
         </div>
 
         <div className="flex flex-col items-center w-full md:w-1/2">
           <div className="flex items-center gap-6 mb-2">
-            <button onClick={handlePrev} className="p-2 text-slate-200 hover:text-emerald-300">
+            <button onClick={handlePrev} className="text-purple-300 hover:text-white transition">
               <FaBackward />
             </button>
-            <button onClick={handleTogglePlay} className="p-3 bg-emerald-300 text-slate-900 rounded-full">
+            <button
+              onClick={handleTogglePlay}
+              className="p-3 bg-purple-500 hover:bg-purple-400 text-white rounded-full shadow-lg shadow-purple-500/30 transition"
+            >
               {isPlaying ? <FaPause /> : <FaPlay />}
             </button>
-            <button onClick={handleNext} className="p-2 text-slate-200 hover:text-emerald-300">
+            <button onClick={handleNext} className="text-purple-300 hover:text-white transition">
               <FaForward />
             </button>
           </div>
 
-          <div
-            onClick={handleSeek}
-            className="w-full h-2 bg-slate-700 rounded-md cursor-pointer relative"
-            title="Click to seek"
-          >
-            <div className="absolute left-0 top-0 bottom-0 bg-emerald-300 rounded-md" style={{ width: `${progress}%` }} />
+          <div className="w-full h-2 bg-purple-900 rounded-lg cursor-pointer">
+            <div className="h-full bg-purple-400 rounded-lg" style={{ width: `${progress}%` }} />
           </div>
 
-          <div className="w-full flex justify-between text-xs text-slate-400 mt-1">
-            <div>{audioRef.current ? formatTime(audioRef.current.currentTime) : '0:00'}</div>
-            <div>{formatTime(duration)}</div>
+          <div className="flex justify-between w-full text-purple-400 text-xs mt-2">
+            <span>{audioRef.current ? formatTime(audioRef.current.currentTime) : '0:00'}</span>
+            <span>{formatTime(duration)}</span>
           </div>
         </div>
 
-        <div className="flex items-center gap-3 w-48 justify-end">
-          <FaVolumeUp className="text-slate-300" />
+        <div className="flex items-center gap-3">
+          <FaVolumeUp className="text-purple-300" />
           <input
             type="range"
             min="0"
@@ -142,7 +116,7 @@ export default function MusicPlayer({ tracks, currentTrack, setCurrentTrack, isP
             step="0.01"
             value={volume}
             onChange={(e) => setVolume(Number(e.target.value))}
-            className="w-full"
+            className="w-32 accent-purple-500"
           />
         </div>
       </div>
